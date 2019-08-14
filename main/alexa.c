@@ -348,7 +348,8 @@ void display_timer() {
     if (time_left == -1) {
       sprintf(timer_output, "-");
     } else {
-      sprintf(timer_output, "%02ld:%02ld", time_left / 60, time_left % 60);
+      sprintf(timer_output, "%02ld", (time_left / 60));
+      sprintf(timer_output, "%02ld", (time_left % 60) );
     }
 
     // output to GPIO

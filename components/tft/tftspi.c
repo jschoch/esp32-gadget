@@ -14,6 +14,10 @@
 #include "freertos/task.h"
 #include "esp_heap_caps.h"
 #include "soc/spi_reg.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "driver/gpio.h"
+#include "sdkconfig.h"
 
 
 // ====================================================
