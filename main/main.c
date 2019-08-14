@@ -43,7 +43,8 @@ uint16_t outgoing_buffer_len;
 uint8_t seq_id;
 
 // TODO: don't use hardcoded Alexa MAC address
-static bd_addr_t alexa_bd_addr = {0x44, 0x00, 0x49, 0x0F, 0x6A, 0x10};
+//static bd_addr_t alexa_bd_addr = {0x44, 0x00, 0x49, 0x0F, 0x6A, 0x10};
+static bd_addr_t alexa_bd_addr = {0x74, 0x75, 0x48, 0xD5, 0x32, 0xE3};
 
 uint8_t get_next_sequence_id() {
   do {
@@ -248,6 +249,13 @@ static void packet_handler(uint8_t packet_type, uint16_t channel,
       ESP_LOGI(TAG, "Unknown packet type: %d", packet_type);
   }
 }
+void bork(){
+  uint8_t sta_mac[6];
+    esp_efuse_read_mac(sta_mac);
+
+    ESP_LOGI(TAG, "sta_mac=%x:%x:%x:%x:%x:%x\n", sta_mac[0],sta_mac[1],sta_mac[2],sta_mac[3],sta_mac[4],sta_mac[5]);
+
+};
 
 static btstack_packet_callback_registration_t hci_event_callback_registration;
 
@@ -258,7 +266,7 @@ int btstack_main(int argc, const char* argv[]) {
   ESP_LOGI(TAG, "btstack_main");
 
   memset(eir_buffer, 0, sizeof(eir_buffer));
-  build_eir(eir_buffer, "Volkhin Nixie Timer", 0x0000, 0xffff);
+  build_eir(eir_buffer, "ledot", 0x0000, 0xffff);
   gap_set_extended_inquiry_response(eir_buffer);
   hci_event_callback_registration.callback = &packet_handler;
   hci_add_event_handler(&hci_event_callback_registration);
@@ -294,8 +302,8 @@ int btstack_main(int argc, const char* argv[]) {
 
   // turn Bluetooth on
   gap_discoverable_control(1);
-  gap_set_local_name("ESP32 device");
+  gap_set_local_name("ledot2");
   hci_power_control(HCI_POWER_ON);
-
+  bork();
   return 0;
 }

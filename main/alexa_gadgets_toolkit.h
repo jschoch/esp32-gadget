@@ -1,6 +1,6 @@
 #include <stdint.h>
 
-#define GADGET_NAME "Volkhin Gadget Name"
+#define GADGET_NAME "ledot2"
 
 static int const RFCOMM_OTA_HANDLE = 0x10002;
 static int const RFCOMM_OTA_CHANNEL = 2;

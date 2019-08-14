@@ -48,10 +48,10 @@ void create_discovery_response() {
   strcpy(env.event.header.name, "Discover.Response");
 
   env.event.payload.endpoints_count = 1;
-  strcpy(env.event.payload.endpoints[0].endpointId, "A3ES37RU3TCYA7");
-  strcpy(env.event.payload.endpoints[0].friendlyName, "NixieTimer");
-  strcpy(env.event.payload.endpoints[0].description, "Nixie Timer");
-  strcpy(env.event.payload.endpoints[0].manufacturerName, "Artem Volkhin");
+  strcpy(env.event.payload.endpoints[0].endpointId, "ledot00002");
+  strcpy(env.event.payload.endpoints[0].friendlyName, "ledot");
+  strcpy(env.event.payload.endpoints[0].description, "da ledot");
+  strcpy(env.event.payload.endpoints[0].manufacturerName, "Jesse Schoch");
 
   env.event.payload.endpoints[0].capabilities_count = 2;
   strcpy(env.event.payload.endpoints[0].capabilities[0].type, "AlexaInterface");
@@ -84,17 +84,19 @@ void create_discovery_response() {
       env.event.payload.endpoints[0].additionalIdentification.firmwareVersion,
       "0");
   strcpy(env.event.payload.endpoints[0].additionalIdentification.deviceToken,
-         "7d407b1bc2cc280c6ba93078c25375b619f6c32fe7b26494c102c323dd926fcf");
+         "b'a6f589a5a8f11dff86d88f6ac16f9161fa3a7b02fe61f947d8b1170c7ccde0d6'");
   strcpy(env.event.payload.endpoints[0]
              .additionalIdentification.deviceTokenEncryptionType,
          "1");
   strcpy(
       env.event.payload.endpoints[0].additionalIdentification.amazonDeviceType,
-      "A3ES37RU3TCYA7");
+      "A3OPCPURPKGDTE");
   strcpy(env.event.payload.endpoints[0].additionalIdentification.modelName,
-         "NixieTimer");
+         "ledot");
   strcpy(env.event.payload.endpoints[0].additionalIdentification.radioAddress,
-         "3C71BF9ABE66");
+         //"3C71BF9ABE66");
+	// a4:cf:12:6c:2d:a4
+	"A4CF126C2DA4");
 
   bool status = pb_encode(
       &stream, alexaDiscovery_DiscoverResponseEventProto_fields, &env);
