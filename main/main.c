@@ -302,7 +302,6 @@ int btstack_main(int argc, const char* argv[]) {
 
   //ws2812_init(18);
   //ws2812_control_init();
-  xTaskCreate(&timer_task, "timer_task", TIMER_TASK_STACK_SIZE, NULL, 5, NULL);
   xTaskCreate(&output_task, "output_task", OUTPUT_TASK_STACK_SIZE, NULL, 5, NULL);
 
   // turn Bluetooth on
