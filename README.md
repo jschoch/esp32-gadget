@@ -1,7 +1,11 @@
-# Nixie Timer
+# ESP32 Gadget
 
-Nixie Timer is a device displaynig timer for Amazon Echo. Works on ESP32 chip,
-connects to Alexa using [Alexa Gadgets Toolkit](https://developer.amazon.com/alexa/alexa-gadgets).
+forked from: https://github.com/volkhin/nixie-timer
 
-This code is very early prototype, most likely it will not work as is. Feel free
-to contact me if you have any questions.
+Starter code for creating Alexa Gadget
+Connects to Alexa using [Alexa Gadgets Toolkit](https://developer.amazon.com/alexa/alexa-gadgets).
+
+This uses btstack to configure EIR and SDP so esp32 can connect.
+
+Currently compiles with the esp-idf 4 preview and 3.2.2
+
