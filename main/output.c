@@ -7,6 +7,8 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "output.h"
+//#include "ws2812.h"
+//#include "ws2812_control.h"
 
 #define TAG "OUTPUT"
 
@@ -28,6 +30,37 @@ void set_output_value(int new_state) {
 
   atomic_store_explicit(&state, new_state, memory_order_relaxed);
 }
+
+#define RED   0xFF0000
+#define GREEN 0x00FF00
+#define BLUE  0x0000FF
+
+void draw(){
+  /*
+  struct led_state new_state;
+  new_state.leds[0] = RED;
+  new_state.leds[1] = GREEN;
+  new_state.leds[2] = BLUE;
+
+  ws2812_write_leds(new_state);	
+  */
+}
+
+/*
+//bork
+void draw2(){
+	rgbVal color = makeRGBVal(100, 100, 100);
+	rgbVal black = makeRGBVal(0,0,0);
+	rgbVal *pixels;
+
+	const uint8_t pixel_count = 2;
+  	pixels = malloc(sizeof(rgbVal) * pixel_count);
+	pixels[0] = color;
+	pixels[1] = color;
+	ws2812_setColors(pixel_count, pixels);
+	
+};
+*/
 
 void output_task(void *pvParameter) {
   ESP_LOGI(TAG, "output_task started");
@@ -67,6 +100,8 @@ void output_task(void *pvParameter) {
     }
 
     gpio_set_level(GPIO_LATCH, 1);
+
+    draw();
     vTaskDelay(1000 / portTICK_PERIOD_MS);
   }
 }

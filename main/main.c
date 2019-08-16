@@ -22,8 +22,11 @@
 #include "nvs_flash.h"
 #include "output.h"
 #include "sdp.h"
+//#include "ws2812.h"
+//#include "ws2812_control.h"
 
 #define TAG "main.c"
+#define NUM_LEDS 3
 
 static uint8_t sdp_buffer_ota[512];
 static uint8_t sdp_buffer_data[512];
@@ -297,6 +300,8 @@ int btstack_main(int argc, const char* argv[]) {
   // Alexa
   register_send_data_callback(&outgoing_data_is_ready);
 
+  //ws2812_init(18);
+  //ws2812_control_init();
   xTaskCreate(&timer_task, "timer_task", TIMER_TASK_STACK_SIZE, NULL, 5, NULL);
   xTaskCreate(&output_task, "output_task", OUTPUT_TASK_STACK_SIZE, NULL, 5, NULL);
 
