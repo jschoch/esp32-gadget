@@ -24,9 +24,12 @@
 #include "sdp.h"
 //#include "ws2812.h"
 //#include "ws2812_control.h"
-
-#define TAG "main.c"
+#include "Arduino.h"
+#include "FastLED.h"
 #define NUM_LEDS 3
+
+#define TAG "main.cpp"
+
 
 static uint8_t sdp_buffer_ota[512];
 static uint8_t sdp_buffer_data[512];
@@ -252,17 +255,22 @@ static void packet_handler(uint8_t packet_type, uint16_t channel,
       ESP_LOGI(TAG, "Unknown packet type: %d", packet_type);
   }
 }
+
+CRGB leds[NUM_LEDS];
+
 void bork(){
   uint8_t sta_mac[6];
     esp_efuse_read_mac(sta_mac);
 
     ESP_LOGI(TAG, "sta_mac=%x:%x:%x:%x:%x:%x\n", sta_mac[0],sta_mac[1],sta_mac[2],sta_mac[3],sta_mac[4],sta_mac[5]);
-
+ 
+  FastLED.addLeds<WS2812B, 18>(leds, NUM_LEDS);
 };
 
 static btstack_packet_callback_registration_t hci_event_callback_registration;
 
-int btstack_main(int argc, const char* argv[]) {
+//int btstack_main(int argc, const char* argv[]) {
+extern "C" int btstack_main(int argc, const char* argv[]) {
   /* UNUSED(argc); */
   /* UNUSED(argv); */
 
@@ -309,5 +317,6 @@ int btstack_main(int argc, const char* argv[]) {
   gap_set_local_name("ledot2");
   hci_power_control(HCI_POWER_ON);
   bork();
+  initArduino();
   return 0;
 }
