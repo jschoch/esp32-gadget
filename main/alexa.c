@@ -24,6 +24,7 @@
 #include "pb.h"
 #include "pb_decode.h"
 #include "pb_encode.h"
+#include "freertos/queue.h"
 
 static const char* TAG = "alexa.c";
 
@@ -32,6 +33,8 @@ uint16_t out_buffer_len;
 static time_t timer;
 static char timer_token[100];
 
+
+extern xQueueHandle timer_queue;
 
 void create_discovery_response() {
   ESP_LOGI(TAG, "Creating discover response event");
@@ -43,8 +46,8 @@ void create_discovery_response() {
   strcpy(env.event.header.name, "Discover.Response");
 
   env.event.payload.endpoints_count = 1;
-  strcpy(env.event.payload.endpoints[0].endpointId, "ledot00002");
-  strcpy(env.event.payload.endpoints[0].friendlyName, "ledot");
+  strcpy(env.event.payload.endpoints[0].endpointId, "ledot00003");
+  strcpy(env.event.payload.endpoints[0].friendlyName, "ledot 03");
   strcpy(env.event.payload.endpoints[0].description, "da ledot");
   strcpy(env.event.payload.endpoints[0].manufacturerName, "Jesse Schoch");
 
@@ -87,11 +90,11 @@ void create_discovery_response() {
       env.event.payload.endpoints[0].additionalIdentification.amazonDeviceType,
       "A3OPCPURPKGDTE");
   strcpy(env.event.payload.endpoints[0].additionalIdentification.modelName,
-         "ledot");
+         "ledot 03");
   strcpy(env.event.payload.endpoints[0].additionalIdentification.radioAddress,
          //"3C71BF9ABE66");
 	// a4:cf:12:6c:2d:a4
-	"A4CF126C2DA4");
+	"A4CF126C2DA6");
 
   bool status = pb_encode(
       &stream, alexaDiscovery_DiscoverResponseEventProto_fields, &env);
@@ -126,21 +129,26 @@ void handle_time_info(char* current_time) {
   ESP_LOGI(TAG, "time info: %d %d %d %d %d %d, %ld", tm.tm_year, tm.tm_mon,
            tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, t);
 }
-
+int active = 0;
 void set_timer(char* token, char* scheduled_time) {
   static struct tm tm;
   strptime(scheduled_time, "%Y-%m-%dT%H:%M:%S", &tm);
   timer = mktime(&tm);
+  int active = 1;
   memset(timer_token, 0, sizeof(timer_token));
   strcpy(timer_token, token);
   ESP_LOGI(TAG, "timer: %s %d %d %d %d %d %d", token, tm.tm_year, tm.tm_mon,
            tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+
+  xQueueSendToBack(timer_queue, &active, 1000);
 }
 
 void cancel_timer() {
   ESP_LOGI(TAG, "Cancelling timer");
   memset(timer_token, 0, sizeof(timer_token));
   timer = 0;
+  active = 0;
+  xQueueSendToBack(timer_queue, &active, 1000);
 }
 
 void handle_set_alert(pb_istream_t stream) {

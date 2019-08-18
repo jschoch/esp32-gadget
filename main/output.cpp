@@ -10,11 +10,44 @@
 //#include "ws2812.h"
 //#include "ws2812_control.h"
 #include "Arduino.h"
+#include "leds.h"
 #include "FastLED.h"
+#include "freertos/queue.h"
 
 #define TAG "OUTPUT"
 
 extern CRGB leds;
+extern xQueueHandle timer_queue;
+
+void draw(int msg){
+
+	if (msg == 0){
+	  for(int i=0; i < NUM_LEDS; i++) {
+		leds[i] = CRGB::Red;
+		FastLED.show();
+        	delay(50);
+	  }
+	}else{
+	  for(int i=0; i < NUM_LEDS; i++) {
+                leds[i] = CRGB::Blue;
+                FastLED.show();
+                delay(50);
+		}
+
+	}
+
+	/*
+	if(i == 0){	
+	  leds[0] = CRGB::White; FastLED.show(); delay(30);
+	  leds[0] = CRGB::Black; FastLED.show(); delay(30);
+	  leds[1] = CRGB::Red; FastLED.show(); delay(30);
+	} else{
+	  leds[1] = CRGB::White; FastLED.show(); delay(30);
+          leds[1] = CRGB::Black; FastLED.show(); delay(30);
+	}
+	*/
+}
+
 
 extern "C" {
 /*
@@ -35,28 +68,32 @@ void set_output_value(int new_state) {
 #define GREEN 0x00FF00
 #define BLUE  0x0000FF
 
-void draw(){
-	leds[0] = CRGB::White; FastLED.show(); delay(30);
-	leds[0] = CRGB::Black; FastLED.show(); delay(30);
-}
-
 
 void output_task(void *pvParameter) {
   ESP_LOGI(TAG, "output_task started");
 
   ESP_LOGI(TAG, "GPIO is configured");
 
+  int bork;
+
+  int state = 0;
+
   for (;;) {
-    /*
-    int value = atomic_load_explicit(&state, memory_order_relaxed);
-    int digit1 = value % 10;
-    int digit2 = (value / 10) % 10;
-   */
 
-    //ESP_LOGI(TAG, "output: %d %d %d", value, digit1, digit2);
+    if(xQueueReceive(timer_queue,&bork,1500/portTICK_RATE_MS)!=pdTRUE) { 
+		ESP_LOGI(TAG,"no queue %d",state);
+		draw(state);
+	}else{
+		ESP_LOGI(TAG,"got msg, %d",bork);
+		draw(bork);
+		if(bork == 1){
+			state = 1;
+		}else{
+			state = 0;
+		}
+	}
 
 
-    draw();
     vTaskDelay(1000 / portTICK_PERIOD_MS);
   }
 }

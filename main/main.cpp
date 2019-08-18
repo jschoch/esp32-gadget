@@ -25,10 +25,16 @@
 //#include "ws2812.h"
 //#include "ws2812_control.h"
 #include "Arduino.h"
+#define FASTLED_ESP32_I2S true
+//#define FASTLED_RMT_MAX_CHANNELS 1
+#include "leds.h"
 #include "FastLED.h"
-#define NUM_LEDS 3
+#include "freertos/queue.h"
 
 #define TAG "main.cpp"
+
+CRGB leds[NUM_LEDS];
+xQueueHandle timer_queue;
 
 
 static uint8_t sdp_buffer_ota[512];
@@ -256,7 +262,6 @@ static void packet_handler(uint8_t packet_type, uint16_t channel,
   }
 }
 
-CRGB leds[NUM_LEDS];
 
 void bork(){
   uint8_t sta_mac[6];
@@ -264,7 +269,6 @@ void bork(){
 
     ESP_LOGI(TAG, "sta_mac=%x:%x:%x:%x:%x:%x\n", sta_mac[0],sta_mac[1],sta_mac[2],sta_mac[3],sta_mac[4],sta_mac[5]);
  
-  FastLED.addLeds<WS2812B, 18>(leds, NUM_LEDS);
 };
 
 static btstack_packet_callback_registration_t hci_event_callback_registration;
@@ -276,19 +280,36 @@ extern "C" int btstack_main(int argc, const char* argv[]) {
 
   ESP_LOGI(TAG, "btstack_main");
 
+  timer_queue = xQueueCreate(10, sizeof(int));
+
+  LEDS.addLeds<WS2812B, 18>(leds, NUM_LEDS);
+  LEDS.setBrightness(60);
+
+  for(int i=0; i < NUM_LEDS; i++) {
+                //leds[i] = CRGB::Green;
+		leds[i] = CRGB(0,100,0);
+          }
+  LEDS.show();
+
+  ESP_LOGI(TAG, "queue created");
+
   memset(eir_buffer, 0, sizeof(eir_buffer));
-  build_eir(eir_buffer, "ledot", 0x0000, 0xffff);
+  build_eir(eir_buffer, "ledot 03", 0x0000, 0xffff);
   gap_set_extended_inquiry_response(eir_buffer);
   hci_event_callback_registration.callback = &packet_handler;
   hci_add_event_handler(&hci_event_callback_registration);
 
+  /*
   l2cap_init();
   rfcomm_init();
-  /* rfcomm_register_service(packet_handler, RFCOMM_OTA_CHANNEL, 0xffff); */
+
+  //rfcomm_register_service(packet_handler, RFCOMM_OTA_CHANNEL, 0xffff);
+
   rfcomm_register_service(packet_handler, RFCOMM_DATA_CHANNEL, 0xffff);
 
   // SDP
   sdp_init();
+  */
 
   memset(sdp_buffer_ota, 0, sizeof(sdp_buffer_ota));
   sdp_create_ota(sdp_buffer_ota, RFCOMM_OTA_HANDLE, RFCOMM_OTA_CHANNEL,
@@ -308,15 +329,24 @@ extern "C" int btstack_main(int argc, const char* argv[]) {
   // Alexa
   register_send_data_callback(&outgoing_data_is_ready);
 
-  //ws2812_init(18);
-  //ws2812_control_init();
+
+  l2cap_init();
+  rfcomm_init();
+
+  //rfcomm_register_service(packet_handler, RFCOMM_OTA_CHANNEL, 0xffff);
+
+  rfcomm_register_service(packet_handler, RFCOMM_DATA_CHANNEL, 0xffff);
+
+  // SDP
+  sdp_init();
+
   xTaskCreate(&output_task, "output_task", OUTPUT_TASK_STACK_SIZE, NULL, 5, NULL);
 
   // turn Bluetooth on
   gap_discoverable_control(1);
-  gap_set_local_name("ledot2");
+  gap_set_local_name("ledot3");
   hci_power_control(HCI_POWER_ON);
   bork();
-  initArduino();
+  initArduino(); 
   return 0;
 }
